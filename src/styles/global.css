@@ -1,0 +1,106 @@
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 1rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+h1 { font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1.25; margin: 4px 0 8px; font-weight: 700; }
+h2 { font-size: 1.375rem; margin: 0 0 8px; font-weight: 700; }
+a { color: var(--link); }
+:focus-visible { outline: 3px solid var(--link); outline-offset: 2px; }
+
+.muted { color: var(--muted); }
+.lbl { color: var(--muted); font-size: 0.75rem; font-weight: 700; letter-spacing: 1.2px; margin: 0; }
+.contenedor { width: 100%; max-width: 1280px; margin: 0 auto; padding: 24px var(--gutter); }
+.pantalla-centro { min-height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 24px var(--gutter); text-align: center; }
+
+/* Tarjetas */
+.card { background: var(--surf); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; }
+.bienvenida { width: 100%; max-width: 520px; text-align: left; }
+.pendiente { max-width: 640px; }
+.acciones { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+.acciones .btn { flex: 1 1 200px; }
+
+/* Botones */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 52px; padding: 0 20px; border-radius: var(--radius);
+  font: 500 1rem var(--font); text-decoration: none; cursor: pointer; border: 0;
+}
+.btn:disabled { opacity: .6; cursor: not-allowed; }
+.btn-primario { background: var(--text); color: var(--on-primary); }
+.btn-contorno { background: transparent; color: var(--text); border: 1.5px solid var(--border); }
+.btn-sos { background: var(--sos); color: #fff; }
+.btn-texto { background: none; color: var(--link); min-height: var(--tap); padding: 0 8px; }
+.btn-chico { min-height: var(--tap); padding: 0 16px; font-size: 0.875rem; }
+.btn-bloque { width: 100%; }
+.btn-icono {
+  width: var(--tap); height: var(--tap); display: inline-grid; place-items: center; flex-shrink: 0;
+  background: none; border: 0; border-radius: 50%; color: var(--muted); cursor: pointer;
+}
+.btn-icono:hover { color: var(--text); background: var(--surf-2); }
+
+/* Campos */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 0.875rem; color: var(--muted); }
+.field input {
+  width: 100%; min-height: 56px; padding: 0 16px; border-radius: var(--radius);
+  background: var(--bg); color: var(--text); border: 1.5px solid var(--border); font: 400 1rem var(--font);
+  color-scheme: dark;
+}
+.field input:focus { border-color: var(--link); outline: none; box-shadow: 0 0 0 3px rgba(143, 211, 255, .25); }
+.field-control { position: relative; display: flex; align-items: center; }
+.field-control.con-icono input { padding-left: 46px; }
+.field-control.con-accion input { padding-right: 56px; }
+.field-icono { position: absolute; left: 16px; color: var(--muted); pointer-events: none; }
+.field-accion { position: absolute; right: 4px; display: flex; align-items: center; }
+.field-error input { border-color: var(--warn); }
+.field-msg { margin: 0; font-size: 0.8125rem; color: var(--muted); }
+.field-msg.error { color: var(--warn); }
+
+/* Estado de conexión (temporal) */
+.estado-conexion { margin: 16px 0 0; padding: 12px 14px; border-radius: var(--radius); background: var(--surf-2); font-size: 0.875rem; }
+.estado-conexion.ok { color: var(--text); border-left: 0; }
+.estado-conexion.error { color: var(--warn); }
+
+/* Spinner */
+.spinner { width: 36px; height: 36px; border-radius: 50%; border: 4px solid var(--surf-2); border-top-color: var(--text); animation: girar 1s linear infinite; }
+.spinner-sm { width: 18px; height: 18px; border-width: 3px; }
+@keyframes girar { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 3s; } }
+
+/* Layout del ciudadano: barra superior (escritorio) y barra inferior (celular) */
+.app { min-height: 100%; display: flex; flex-direction: column; }
+.topbar { height: 68px; display: flex; align-items: center; gap: 24px; padding: 0 var(--gutter); border-bottom: 1px solid var(--border); background: var(--surf); position: sticky; top: 0; z-index: 10; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-weight: 700; font-size: 1.125rem; }
+.brand-logo { width: 36px; height: 36px; border-radius: 10px; background: var(--text); color: var(--bg); display: grid; place-items: center; font-size: 0.875rem; }
+.topnav { display: flex; gap: 4px; }
+.topnav a { color: var(--muted); text-decoration: none; padding: 8px 12px; border-radius: 10px; font-weight: 500; }
+.topnav a.on { color: var(--text); background: var(--surf-2); }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.chip-estado { display: inline-flex; align-items: center; gap: 8px; font-size: 0.8125rem; color: var(--muted); }
+.punto-ok { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+.avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--surf-2); display: grid; place-items: center; font-weight: 700; font-size: 0.875rem; }
+.app-main { flex: 1; }
+.bottomnav { display: none; }
+
+@media (max-width: 768px) {
+  .topbar { height: 56px; }
+  .topnav, .chip-estado { display: none; }
+  .app-main { padding-bottom: 72px; }
+  .bottomnav {
+    display: flex; position: fixed; left: 0; right: 0; bottom: 0; height: 64px;
+    background: var(--surf); border-top: 1px solid var(--border); z-index: 10;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .bottomnav a { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--muted); text-decoration: none; font-size: 0.75rem; min-height: var(--tap); }
+  .bottomnav a.on { color: var(--text); }
+}
+
+/* Preferencia "Texto grande" (perfil): agranda todos los textos del sistema (tamaños en rem). */
+html.texto-grande { font-size: 118.75%; }

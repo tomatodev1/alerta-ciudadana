@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AlertaCiudadana – Sistema Ciudadano de Alertas de Emergencia (Prototipo académico)</title>
+  <meta name="description" content="Prototipo académico de orientación y registro de alertas de emergencia. No sustituye los canales oficiales.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="css/styles.css" rel="stylesheet">
+</head>
+<body>
+  <a href="#contenido" class="skip-link">Saltar al contenido principal</a>
+
+  <!-- Aviso obligatorio de prototipo -->
+  <div class="aviso-prototipo py-2" role="note">
+    <div class="container d-flex align-items-center gap-2">
+      <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+      <span><strong>Prototipo académico (IHC – COMP1302).</strong> Esta aplicación <strong>NO sustituye los canales oficiales de emergencia</strong>. Ante una emergencia real llama al <a href="tel:105" class="fw-bold text-reset">105</a>, <a href="tel:116" class="fw-bold text-reset">116</a> o <a href="tel:106" class="fw-bold text-reset">106</a>.</span>
+    </div>
+  </div>
+
+  <!-- Navegación -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-ac sticky-top" aria-label="Navegación principal">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="#inicio">
+        <span class="brand-logo" aria-hidden="true"><i class="bi bi-broadcast"></i></span>
+        AlertaCiudadana
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu" aria-controls="menu" aria-expanded="false" aria-label="Abrir menú">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="menu">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+          <li class="nav-item"><a class="nav-link" href="#inicio">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link" href="#tipos">Tipos de emergencia</a></li>
+          <li class="nav-item"><a class="nav-link" href="#alerta">Registrar alerta</a></li>
+          <li class="nav-item"><a class="nav-link" href="#estado">Estado de alerta</a></li>
+          <li class="nav-item"><a class="nav-link" href="#canales">Canales oficiales</a></li>
+          <li class="nav-item"><a class="nav-link" href="#ayuda">Ayuda</a></li>
+          <li class="nav-item ms-lg-2"><a class="btn btn-light btn-sm fw-semibold" href="dashboard.html"><i class="bi bi-bar-chart-line" aria-hidden="true"></i> Dashboard</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main id="contenido">
+    <!-- Hero / propuesta de valor -->
+    <section id="inicio" class="hero">
+      <div class="container">
+        <div class="row align-items-center g-5">
+          <div class="col-lg-7">
+            <span class="badge bg-light text-dark mb-3">MININTER · PNP · Prototipo académico</span>
+            <h1 class="display-5 fw-bold">Sistema Ciudadano de <span>Alertas de Emergencia</span></h1>
+            <p class="lead mt-3">Orientamos al ciudadano para identificar su emergencia, saber a qué canal oficial acudir y registrar una alerta de forma rápida y clara. Las autoridades monitorean las alertas en un panel centralizado.</p>
+            <div class="d-flex flex-wrap gap-2 mt-4">
+              <a href="#alerta" class="btn btn-ac btn-lg"><i class="bi bi-megaphone-fill" aria-hidden="true"></i> Registrar alerta</a>
+              <a href="#estado" class="btn btn-outline-light btn-lg"><i class="bi bi-search" aria-hidden="true"></i> Consultar estado</a>
+            </div>
+            <ul class="list-unstyled d-flex flex-wrap gap-4 mt-4 mb-0 small">
+              <li><i class="bi bi-lightning-charge-fill" aria-hidden="true"></i> <strong>Rapidez:</strong> registro en &lt; 1 min</li>
+              <li><i class="bi bi-signpost-split-fill" aria-hidden="true"></i> <strong>Orientación:</strong> canal oficial correcto</li>
+              <li><i class="bi bi-eye-fill" aria-hidden="true"></i> <strong>Transparencia:</strong> seguimiento con código</li>
+            </ul>
+          </div>
+          <div class="col-lg-5 d-none d-md-block" aria-hidden="true">
+            <div class="radar">
+              <span class="anillo"></span><span class="anillo"></span><span class="anillo"></span>
+              <div class="centro"><i class="bi bi-broadcast"></i></div>
+              <div class="chip c1"><i class="bi bi-fire text-danger"></i> Incendio · Callao</div>
+              <div class="chip c2"><i class="bi bi-heart-pulse text-success"></i> Emergencia médica</div>
+              <div class="chip c3"><i class="bi bi-check-circle-fill text-success"></i> Alerta atendida · 18 min</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <svg class="hero-ola" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true"><path fill="#ffffff" d="M0,40 C240,80 480,0 720,30 C960,60 1200,10 1440,40 L1440,80 L0,80 Z"/></svg>
+    </section>
+
+    <!-- Franja de estadísticas -->
+    <div class="bg-white">
+      <div class="container stats-strip">
+        <div class="row g-3">
+          <div class="col-md-4"><div class="card card-ac h-100 d-flex flex-row align-items-center gap-3"><span class="kpi-icono"><i class="bi bi-inbox-fill" aria-hidden="true"></i></span><div><div class="stat-num" data-contador="total">0</div><div class="small text-muted-ac">alertas monitoreadas (12 meses)</div></div></div></div>
+          <div class="col-md-4"><div class="card card-ac h-100 d-flex flex-row align-items-center gap-3"><span class="kpi-icono" style="background:#d9f4ea;color:#047857"><i class="bi bi-check2-circle" aria-hidden="true"></i></span><div><div class="stat-num" data-contador="pct">0</div><div class="small text-muted-ac">% de alertas atendidas</div></div></div></div>
+          <div class="col-md-4"><div class="card card-ac h-100 d-flex flex-row align-items-center gap-3"><span class="kpi-icono" style="background:#ece4fd;color:#6d28d9"><i class="bi bi-stopwatch" aria-hidden="true"></i></span><div><div class="stat-num" data-contador="tiempo">0</div><div class="small text-muted-ac">minutos de respuesta promedio</div></div></div></div>
+        </div>
+        <p class="small text-muted-ac text-end mt-2 mb-0"><a href="dashboard.html">Ver Dashboard →</a></p>
+      </div>
+    </div>
+
+    <!-- Usuarios beneficiarios -->
+    <section id="beneficiarios" class="section-pad bg-white">
+      <div class="container">
+        <div class="text-center"><span class="eyebrow">Usuarios</span></div>
+        <h2 class="section-title text-center">¿A quién beneficia?</h2>
+        <p class="text-center text-muted-ac mb-5">Usuarios identificados en las etapas previas del proyecto.</p>
+        <div class="row g-4">
+          <div class="col-md-6 col-lg-3">
+            <div class="card card-ac h-100 p-4 text-center reveal">
+              <span class="benef-icono" aria-hidden="true"><i class="bi bi-people-fill"></i></span>
+              <h3 class="h6 mt-3 fw-bold">Ciudadanos</h3>
+              <p class="small text-muted-ac mb-0">Personas que presencian o sufren una emergencia y necesitan orientación inmediata.</p>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3">
+            <div class="card card-ac h-100 p-4 text-center reveal">
+              <span class="benef-icono" aria-hidden="true"><i class="bi bi-universal-access-circle"></i></span>
+              <h3 class="h6 mt-3 fw-bold">Personas con discapacidad y adultos mayores</h3>
+              <p class="small text-muted-ac mb-0">Interfaz con alto contraste, navegación por teclado y textos claros.</p>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3">
+            <div class="card card-ac h-100 p-4 text-center reveal">
+              <span class="benef-icono" aria-hidden="true"><i class="bi bi-shield-fill-check"></i></span>
+              <h3 class="h6 mt-3 fw-bold">Operadores PNP</h3>
+              <p class="small text-muted-ac mb-0">Personal que recibe, prioriza y atiende las alertas registradas.</p>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3">
+            <div class="card card-ac h-100 p-4 text-center reveal">
+              <span class="benef-icono" aria-hidden="true"><i class="bi bi-building-fill"></i></span>
+              <h3 class="h6 mt-3 fw-bold">Gestores MININTER</h3>
+              <p class="small text-muted-ac mb-0">Autoridades que monitorean indicadores para la toma de decisiones.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cómo funciona -->
+    <section id="como" class="section-pad bg-white pt-0">
+      <div class="container">
+        <div class="text-center"><span class="eyebrow">Cómo funciona</span></div>
+        <h2 class="section-title text-center mb-5">Tres pasos para orientarte</h2>
+        <div class="row g-4">
+          <div class="col-md-4 reveal"><div class="d-flex gap-3"><span class="paso-num">1</span><div><h3 class="h6 fw-bold">Identifica la emergencia</h3><p class="small text-muted-ac mb-0">Elige el tipo y conoce qué hacer y a qué línea oficial llamar.</p></div></div></div>
+          <div class="col-md-4 reveal"><div class="d-flex gap-3"><span class="paso-num">2</span><div><h3 class="h6 fw-bold">Registra la alerta</h3><p class="small text-muted-ac mb-0">Completa el formulario y obtén un código de seguimiento.</p></div></div></div>
+          <div class="col-md-4 reveal"><div class="d-flex gap-3"><span class="paso-num">3</span><div><h3 class="h6 fw-bold">Sigue su estado</h3><p class="small text-muted-ac mb-0">Consulta si tu alerta está registrada, en atención o atendida.</p></div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Servicios / tipos de emergencia -->
+    <section id="tipos" class="section-pad">
+      <div class="container">
+        <div class="text-center"><span class="eyebrow">Servicios</span></div>
+        <h2 class="section-title text-center">Tipos de emergencia</h2>
+        <p class="text-center text-muted-ac mb-5">Selecciona un tipo para ver qué hacer y a qué canal oficial acudir.</p>
+        <div class="row g-4" id="listaTipos"><!-- generado con JS --></div>
+      </div>
+    </section>
+
+    <!-- Alertas recientes -->
+    <section id="recientes" class="section-pad bg-white">
+      <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
+          <div>
+            <span class="eyebrow">En tiempo real</span>
+            <h2 class="section-title mb-1">Alertas recientes</h2>
+            <p class="text-muted-ac mb-0">Últimas alertas del sistema. Haz clic en un código para ver su estado.</p>
+          </div>
+        </div>
+        <div class="card card-ac p-0 overflow-hidden">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <caption class="visually-hidden">Últimas 8 alertas registradas</caption>
+              <thead class="table-light"><tr><th scope="col">Código</th><th scope="col">Fecha</th><th scope="col">Tipo</th><th scope="col">Zona</th><th scope="col">Estado</th></tr></thead>
+              <tbody id="tablaRecientes"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Formulario de alerta -->
+    <section id="alerta" class="section-pad">
+      <div class="container">
+        <div class="row g-5">
+          <div class="col-lg-5">
+            <span class="eyebrow">Formulario</span>
+            <h2 class="section-title">Registrar alerta</h2>
+            <p class="text-muted-ac">Completa el formulario para simular el registro de una alerta. Al enviarlo obtendrás un <strong>código de seguimiento</strong> para consultar su estado.</p>
+            <div class="alert alert-warning d-flex gap-2" role="note">
+              <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+              <div>Esta alerta <strong>no se envía a ninguna autoridad</strong>. Si estás en peligro real, llama al <a href="tel:105" class="alert-link">105</a>.</div>
+            </div>
+            <ul class="small text-muted-ac">
+              <li>Los campos con <span class="text-danger">*</span> son obligatorios.</li>
+              <li>Puedes navegar con <kbd>Tab</kbd> y enviar con <kbd>Enter</kbd>.</li>
+            </ul>
+          </div>
+          <div class="col-lg-7">
+            <form id="formAlerta" class="card card-ac p-4" novalidate>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="fTipo" class="form-label fw-semibold">Tipo de emergencia <span class="text-danger">*</span></label>
+                  <select id="fTipo" class="form-select" required aria-describedby="fTipoAyuda">
+                    <option value="">Selecciona…</option>
+                  </select>
+                  <div id="fTipoAyuda" class="form-text">Canal sugerido: <span id="canalSugerido">—</span></div>
+                  <div class="invalid-feedback">Selecciona el tipo de emergencia.</div>
+                </div>
+                <div class="col-md-6">
+                  <label for="fZona" class="form-label fw-semibold">Zona <span class="text-danger">*</span></label>
+                  <select id="fZona" class="form-select" required>
+                    <option value="">Selecciona…</option>
+                  </select>
+                  <div class="invalid-feedback">Selecciona la zona.</div>
+                </div>
+                <div class="col-12">
+                  <label for="fDireccion" class="form-label fw-semibold">Dirección o referencia <span class="text-danger">*</span></label>
+                  <input id="fDireccion" type="text" class="form-control" required minlength="5" placeholder="Ej.: Av. Abancay cuadra 5, frente al parque">
+                  <div class="invalid-feedback">Ingresa una dirección o referencia (mínimo 5 caracteres).</div>
+                </div>
+                <div class="col-12">
+                  <label for="fDescripcion" class="form-label fw-semibold">Descripción breve <span class="text-danger">*</span></label>
+                  <textarea id="fDescripcion" class="form-control" rows="3" required minlength="10" maxlength="300" aria-describedby="contador"></textarea>
+                  <div class="invalid-feedback">Describe la situación (mínimo 10 caracteres).</div>
+                  <small id="contador" class="text-muted-ac d-block text-end">0/300</small>
+                </div>
+                <div class="col-md-6">
+                  <label for="fTelefono" class="form-label fw-semibold">Teléfono de contacto</label>
+                  <input id="fTelefono" type="tel" class="form-control" pattern="9[0-9]{8}" placeholder="9XXXXXXXX" aria-describedby="telAyuda">
+                  <div id="telAyuda" class="form-text">Opcional. Celular de 9 dígitos.</div>
+                  <div class="invalid-feedback">Formato no válido: 9 dígitos iniciando en 9.</div>
+                </div>
+                <div class="col-md-6 d-flex align-items-end">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="fPeligro">
+                    <label class="form-check-label" for="fPeligro">Hay personas heridas o en peligro inmediato</label>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="fAcepto" required>
+                    <label class="form-check-label" for="fAcepto">Entiendo que esta plataforma es un <strong>prototipo académico</strong> y no reemplaza a los canales oficiales <span class="text-danger">*</span></label>
+                    <div class="invalid-feedback">Debes aceptar para continuar.</div>
+                  </div>
+                </div>
+                <div class="col-12 d-flex gap-2">
+                  <button type="submit" class="btn btn-ac"><i class="bi bi-send-fill" aria-hidden="true"></i> Enviar alerta</button>
+                  <button type="reset" class="btn btn-ac-outline">Limpiar</button>
+                </div>
+              </div>
+            </form>
+            <div id="resultadoAlerta" class="mt-3" aria-live="polite"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Estado de alerta -->
+    <section id="estado" class="section-pad">
+      <div class="container">
+        <div class="row g-5">
+          <div class="col-lg-5">
+            <span class="eyebrow">Seguimiento</span>
+            <h2 class="section-title">Estado de una alerta</h2>
+            <p class="text-muted-ac">Ingresa el código obtenido al registrar tu alerta, o prueba con un código de ejemplo.</p>
+            <form id="formEstado" class="d-flex gap-2" role="search" novalidate>
+              <label for="codigoEstado" class="visually-hidden">Código de seguimiento</label>
+              <input id="codigoEstado" class="form-control" placeholder="Ej.: ALR-00125" required>
+              <button class="btn btn-ac" type="submit">Consultar</button>
+            </form>
+            <p class="small mt-2 mb-4">Códigos de ejemplo:
+              <button type="button" class="btn btn-link btn-sm p-0 align-baseline ejemplo-codigo">ALR-00125</button>,
+              <button type="button" class="btn btn-link btn-sm p-0 align-baseline ejemplo-codigo">ALR-00200</button>
+            </p>
+            <h3 class="h6 fw-bold">Significado de los estados</h3>
+            <dl class="small mb-0">
+              <dt><span class="badge text-bg-secondary">Registrada</span></dt><dd>La alerta fue recibida por el sistema.</dd>
+              <dt><span class="badge text-bg-warning">En atención</span></dt><dd>Un operador la asignó a una unidad de respuesta.</dd>
+              <dt><span class="badge text-bg-success">Atendida</span></dt><dd>La unidad llegó al lugar y cerró la intervención.</dd>
+            </dl>
+          </div>
+          <div class="col-lg-7">
+            <div id="resultadoEstado" class="card card-ac p-4 h-100" aria-live="polite">
+              <p class="text-muted-ac mb-0"><i class="bi bi-search" aria-hidden="true"></i> El resultado de la consulta aparecerá aquí.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Canales oficiales -->
+    <section id="canales" class="section-pad bg-white">
+      <div class="container">
+        <div class="text-center"><span class="eyebrow">Líneas gratuitas</span></div>
+        <h2 class="section-title text-center">Canales oficiales de emergencia</h2>
+        <p class="text-center text-muted-ac mb-5">Ante una emergencia real, comunícate directamente con estas líneas gratuitas.</p>
+        <div class="row g-4 text-center">
+          <div class="col-6 col-lg">
+            <div class="card card-ac canal-card p-3 h-100 reveal"><div class="canal-numero">105</div><div class="fw-semibold">Policía Nacional</div><small class="text-muted-ac">Robos, violencia, seguridad</small><a href="tel:105" class="btn btn-ac-outline btn-sm mt-2" aria-label="Llamar al 105, Policía Nacional">Llamar</a></div>
+          </div>
+          <div class="col-6 col-lg">
+            <div class="card card-ac canal-card p-3 h-100 reveal"><div class="canal-numero">116</div><div class="fw-semibold">Bomberos</div><small class="text-muted-ac">Incendios, rescates, fugas</small><a href="tel:116" class="btn btn-ac-outline btn-sm mt-2" aria-label="Llamar al 116, Bomberos">Llamar</a></div>
+          </div>
+          <div class="col-6 col-lg">
+            <div class="card card-ac canal-card p-3 h-100 reveal"><div class="canal-numero">106</div><div class="fw-semibold">SAMU</div><small class="text-muted-ac">Urgencias médicas</small><a href="tel:106" class="btn btn-ac-outline btn-sm mt-2" aria-label="Llamar al 106, SAMU">Llamar</a></div>
+          </div>
+          <div class="col-6 col-lg">
+            <div class="card card-ac canal-card p-3 h-100 reveal"><div class="canal-numero">100</div><div class="fw-semibold">Línea 100</div><small class="text-muted-ac">Violencia familiar y de género</small><a href="tel:100" class="btn btn-ac-outline btn-sm mt-2" aria-label="Llamar a la Línea 100">Llamar</a></div>
+          </div>
+          <div class="col-12 col-lg">
+            <div class="card card-ac canal-card p-3 h-100 reveal"><div class="canal-numero">911</div><div class="fw-semibold">Central única</div><small class="text-muted-ac">En implementación en Lima y Callao (unifica 105, 106, 116 y 100)</small></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ayuda / orientación -->
+    <section id="ayuda" class="section-pad">
+      <div class="container">
+        <div class="row g-5">
+          <div class="col-lg-7">
+            <span class="eyebrow">Ayuda</span>
+            <h2 class="section-title">Preguntas frecuentes</h2>
+            <div class="accordion" id="faq">
+              <div class="accordion-item">
+                <h3 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#q1" aria-expanded="true" aria-controls="q1">¿Esta plataforma envía ayuda real?</button></h3>
+                <div id="q1" class="accordion-collapse collapse show" data-bs-parent="#faq"><div class="accordion-body">No. Es un prototipo académico: las alertas se guardan en la base de datos del proyecto, pero no llegan a ninguna institución. Usa siempre los canales oficiales.</div></div>
+              </div>
+              <div class="accordion-item">
+                <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q2" aria-expanded="false" aria-controls="q2">¿Qué datos debo dar al llamar a una línea de emergencia?</button></h3>
+                <div id="q2" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body">Qué ocurre, dirección exacta con referencias, número de personas afectadas y si hay heridos. Mantén la calma y no cuelgues hasta que el operador lo indique.</div></div>
+              </div>
+              <div class="accordion-item">
+                <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q3" aria-expanded="false" aria-controls="q3">¿Cómo consulto el estado de mi alerta?</button></h3>
+                <div id="q3" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body">En la sección <a href="#estado">Estado de alerta</a> ingresa el código (formato ALR-00000) que recibiste al registrarla.</div></div>
+              </div>
+              <div class="accordion-item">
+                <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q4" aria-expanded="false" aria-controls="q4">¿La plataforma es accesible?</button></h3>
+                <div id="q4" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body">Se diseñó tomando como referencia WCAG 2.1 AA: contraste adecuado, etiquetas en todos los campos, navegación completa por teclado y mensajes anunciados a lectores de pantalla.</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <span class="eyebrow">Orientación</span>
+            <h2 class="section-title">Contacto</h2>
+            <div class="card card-ac p-4">
+              <p class="mb-2"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i> <strong>Grupo 6</strong> – Interacción Humano Computador (COMP1302)</p>
+              <p class="mb-3 small text-muted-ac">Consultas sobre el prototipo (no emergencias).</p>
+              <form id="formContacto" novalidate>
+                <label for="cMensaje" class="form-label fw-semibold">Mensaje</label>
+                <textarea id="cMensaje" class="form-control mb-2" rows="3" required minlength="5"></textarea>
+                <div class="invalid-feedback mb-2">Escribe tu consulta (mínimo 5 caracteres).</div>
+                <button class="btn btn-ac-outline" type="submit">Enviar consulta</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="py-4">
+    <div class="container d-flex flex-column flex-md-row justify-content-between gap-2 small">
+      <span>© 2026 AlertaCiudadana · Prototipo académico – Grupo 6. No sustituye los canales oficiales de emergencia.</span>
+      <a href="dashboard.html">Ir al Dashboard de monitoreo →</a>
+    </div>
+  </footer>
+
+  <button id="btnArriba" type="button" aria-label="Volver arriba"><i class="bi bi-arrow-up" aria-hidden="true"></i></button>
+
+  <!-- Modal de detalle de tipo -->
+  <div class="modal fade" id="modalTipo" tabindex="-1" aria-labelledby="modalTipoTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h5" id="modalTipoTitulo"></h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body" id="modalTipoCuerpo"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ac-outline" data-bs-dismiss="modal">Cerrar</button>
+          <a href="#alerta" class="btn btn-ac" id="modalTipoCTA">Registrar este tipo de alerta</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast de retroalimentación -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true">
+      <div class="toast-header"><strong class="me-auto" id="toastTitulo">Aviso</strong><button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Cerrar"></button></div>
+      <div class="toast-body" id="toastCuerpo"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

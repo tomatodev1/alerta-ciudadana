@@ -1,0 +1,20 @@
+/* Guía de estilos del sistema (informe, sección 8.2) */
+:root {
+  --bg: #0F2027;
+  --surf: #18303B;
+  --surf-2: #213E4B;
+  --border: #31505E;
+  --text: #F1F5F9;
+  --muted: #A9BAC3;
+  --link: #8FD3FF;
+  --sos: #E63946;       /* solo para el botón SOS */
+  --ok: #2A9D8F;        /* solo para la confirmación final */
+  --warn: #F4A261;
+  --on-primary: #0F2027;
+
+  --font: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --tap: 48px;          /* área táctil mínima */
+  --gutter: 16px;
+}
