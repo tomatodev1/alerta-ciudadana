@@ -5,6 +5,7 @@ import { Field } from '@/components/ui/Field';
 import { CampoContrasena } from '@/components/ui/CampoContrasena';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
+import { ReenviarConfirmacion } from '@/components/ui/ReenviarConfirmacion';
 import { useAuth } from '@/hooks/useAuth';
 import { setRecordarSesion, supabase } from '@/lib/supabase';
 import { invocar, mensajeAuth } from '@/lib/funciones';
@@ -21,6 +22,7 @@ export default function LoginPage() {
   const [recordar, setRecordar] = useState(true);
   const [errores, setErrores] = useState<{ usuario?: string; password?: string; general?: string }>({});
   const [enviando, setEnviando] = useState(false);
+  const [sinConfirmar, setSinConfirmar] = useState('');   // correo pendiente de confirmar
 
   // Con sesión y perfil cargado, cada rol va a su pantalla.
   if (!cargando && session && perfil) return <Navigate to={rutaInicio(perfil, desde)} replace />;
@@ -29,6 +31,7 @@ export default function LoginPage() {
     e.preventDefault();
     const valor = usuario.trim();
     const esCorreo = valor.includes('@');
+    setSinConfirmar('');
     const nuevos: typeof errores = {};
     if (!valor) nuevos.usuario = 'Ingresa tu DNI o tu correo electrónico.';
     else if (!esCorreo && !/^\d{8}$/.test(valor)) nuevos.usuario = 'El DNI tiene 8 dígitos. Si usas correo, revisa que tenga @.';
@@ -42,6 +45,10 @@ export default function LoginPage() {
       let userId: string;
       if (esCorreo) {
         const { data, error } = await supabase.auth.signInWithPassword({ email: valor, password });
+        if (error?.code === 'email_not_confirmed' || /not confirmed/i.test(error?.message ?? '')) {
+          setSinConfirmar(valor.toLowerCase());
+          throw new Error('Tu correo aún no está confirmado. Abre el enlace que te enviamos o pide uno nuevo.');
+        }
         if (error) throw new Error(mensajeAuth(error.message));
         userId = data.user.id;
       } else {
@@ -101,6 +108,7 @@ export default function LoginPage() {
         </div>
 
         {errores.general && <p className="alerta-form" role="alert">{errores.general}</p>}
+        {sinConfirmar && <ReenviarConfirmacion correo={sinConfirmar} />}
 
         <Button type="submit" cargando={enviando} className="btn-bloque">Ingresar</Button>
       </form>

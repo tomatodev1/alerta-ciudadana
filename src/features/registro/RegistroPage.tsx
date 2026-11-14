@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { AuthLayout } from '@/components/layout/AuthLayout';
 import { Cargando } from '@/components/ui/Cargando';
 import { Icon } from '@/components/ui/Icon';
+import { ReenviarConfirmacion } from '@/components/ui/ReenviarConfirmacion';
 import { useAuth } from '@/hooks/useAuth';
 import type { Perfil } from '@/types/database.types';
 import { PasoDatos } from './PasoDatos';
@@ -145,9 +146,22 @@ function ConfirmaCorreo({ correo }: { correo: string }) {
       <span className="icono-grande"><Icon name="mail" size={28} /></span>
       <h1>Confirma tu correo</h1>
       <p className="muted">
-        Enviamos un enlace a <strong>{correo}</strong>. Ábrelo y luego inicia sesión para continuar con la verificación.
+        Enviamos un enlace a <strong>{correo}</strong>. Ábrelo desde este mismo dispositivo: te traerá de vuelta
+        aquí para continuar con la verificación (código SMS, foto del DNI y selfie).
       </p>
-      <Link to="/ingresar" className="btn btn-primario btn-bloque">Ir a iniciar sesión</Link>
+      <div className="caja">
+        <Icon name="info" />
+        <div>
+          <strong>¿No te llegó?</strong>
+          <ul>
+            <li>Revisa la carpeta de spam o promociones.</li>
+            <li>Espera un minuto y pide otro enlace.</li>
+            <li>Verifica que el correo esté bien escrito.</li>
+          </ul>
+        </div>
+      </div>
+      <ReenviarConfirmacion correo={correo} esperaInicial={60} />
+      <Link to="/ingresar" className="enlace">Ya confirmé: iniciar sesión</Link>
     </div>
   );
 }

@@ -53,8 +53,13 @@ DNIs del padrón de demostración (cualquier otro DNI de 8 dígitos también se 
 | 45678912 | 20/05/2017 | ROSA TORRES VILLANUEVA |
 
 Configuración en Supabase → Authentication:
-- *Sign In / Providers → Email*: desactivar **Confirm email**.
-- *URL Configuration → Redirect URLs*: agregar `http://localhost:5173/recuperar` (y la URL de Vercel + `/recuperar`).
+- *Sign In / Providers → Email*: **Confirm email** activado (el enlace del correo vuelve a `/registro` y sigue en el paso 2).
+- *Emails → SMTP Settings*: SMTP propio (p. ej. Gmail con contraseña de aplicación). Sin esto Supabase
+  solo envía correos a los miembros del equipo del proyecto y con un límite de pocos por hora.
+- *URL Configuration*: **Site URL** = URL de Vercel; **Redirect URLs** = `https://<tu-app>.vercel.app/**`
+  y `http://localhost:5173/**`.
+- Tras cambiar `ingresar-dni`, volver a desplegarla:
+  `npx supabase functions deploy ingresar-dni --no-verify-jwt --remote=<REF>`.
 
 Los modelos de face-api.js están en `public/modelos` (~7 MB) y solo se descargan en la verificación facial.
 

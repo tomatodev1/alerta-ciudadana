@@ -99,6 +99,8 @@ export function PasoDatos({ onConfirmacionCorreo }: { onConfirmacionCorreo: (cor
       email: correo.trim().toLowerCase(),
       password,
       options: {
+        // Si "Confirm email" está activo, el enlace del correo trae de vuelta al registro (paso 2).
+        emailRedirectTo: `${window.location.origin}/registro`,
         data: {
           dni,
           nombres: (datos.nombres ?? nombres).trim().toUpperCase(),
@@ -111,7 +113,7 @@ export function PasoDatos({ onConfirmacionCorreo }: { onConfirmacionCorreo: (cor
     setEnviando(false);
     if (error) { setErrores({ general: mensajeAuth(error.message) }); return; }
     // Con "Confirm email" desactivado hay sesión inmediata y RegistroPage pasa al paso 2.
-    if (!data.session) onConfirmacionCorreo(correo.trim());
+    if (!data.session) onConfirmacionCorreo(correo.trim().toLowerCase());
   }
 
   return (

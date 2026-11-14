@@ -197,3 +197,6 @@
 @media (min-width: 769px) { .solo-movil { display: none !important; } }
 @media (max-width: 380px) { .otp { gap: 6px; } }
 @media (prefers-reduced-motion: reduce) { .barra-gestos .pista span { transition: none; } }
+
+.reenviar-confirmacion { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+.reenviar-confirmacion .texto-chico:empty { display: none; }
