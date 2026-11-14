@@ -45,37 +45,38 @@ export function Navegacion() {
 
       <nav className="navbar navbar-expand-lg navbar-dark navbar-ac sticky-top" aria-label="Navegación principal">
         <div className="container">
-          <a className="navbar-brand d-flex align-items-center gap-2 fw-bold" href="#inicio" onClick={cerrar}>
+          <a className="navbar-brand d-flex align-items-center gap-2 fw-bold" href="#inicio" onClick={cerrar} aria-label="AlertaCiudadana, ir al inicio">
             <span className="brand-logo" aria-hidden="true"><i className="bi bi-broadcast"></i></span>
-            AlertaCiudadana
+            <span className="d-none d-sm-inline">AlertaCiudadana</span>
           </a>
-          <button
-            className={`navbar-toggler${abierto ? '' : ' collapsed'}`}
-            type="button"
-            aria-controls="menu"
-            aria-expanded={abierto}
-            aria-label={abierto ? 'Cerrar menú' : 'Abrir menú'}
-            onClick={() => setAbierto((v) => !v)}
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
+
+          {/* Siempre visibles (también en celular, sin abrir el menú) */}
+          <div className="acciones-nav d-flex align-items-center gap-2 ms-auto order-lg-last ms-lg-3">
+            <Link className="btn btn-light btn-sm fw-semibold" to="/ingresar">
+              <i className="bi bi-box-arrow-in-right" aria-hidden="true"></i> Ingresar<span className="d-none d-xl-inline"> al sistema</span>
+            </Link>
+            <Link className="btn btn-outline-light btn-sm fw-semibold" to="/dashboard">
+              <i className="bi bi-bar-chart-line" aria-hidden="true"></i> Dashboard
+            </Link>
+            <button
+              className={`navbar-toggler${abierto ? '' : ' collapsed'}`}
+              type="button"
+              aria-controls="menu"
+              aria-expanded={abierto}
+              aria-label={abierto ? 'Cerrar menú' : 'Abrir menú'}
+              onClick={() => setAbierto((v) => !v)}
+            >
+              <span className="navbar-toggler-icon"></span>
+            </button>
+          </div>
+
           <div className={`collapse navbar-collapse${abierto ? ' show' : ''}`} id="menu">
-            <ul className="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+            <ul className="navbar-nav ms-auto align-items-lg-center gap-lg-1">
               {ENLACES.map((e) => (
                 <li className="nav-item" key={e.href}>
                   <a className="nav-link" href={e.href} onClick={cerrar}>{e.texto}</a>
                 </li>
               ))}
-              <li className="nav-item ms-lg-2 mt-2 mt-lg-0">
-                <Link className="btn btn-outline-light btn-sm fw-semibold" to="/dashboard">
-                  <i className="bi bi-bar-chart-line" aria-hidden="true"></i> Dashboard
-                </Link>
-              </li>
-              <li className="nav-item mt-2 mt-lg-0">
-                <Link className="btn btn-light btn-sm fw-semibold" to="/ingresar">
-                  <i className="bi bi-box-arrow-in-right" aria-hidden="true"></i> Ingresar al sistema
-                </Link>
-              </li>
             </ul>
           </div>
         </div>

@@ -17,9 +17,13 @@ export function Hero() {
                 una alerta de forma rápida y clara. Las autoridades monitorean las alertas en un panel centralizado.
               </p>
               <div className="d-flex flex-wrap gap-2 mt-4">
-                <a href="#alerta" className="btn btn-ac btn-lg"><i className="bi bi-megaphone-fill" aria-hidden="true"></i> Registrar alerta</a>
-                <a href="#estado" className="btn btn-outline-light btn-lg"><i className="bi bi-search" aria-hidden="true"></i> Consultar estado</a>
+                <Link to="/ingresar" className="btn btn-ac btn-lg"><i className="bi bi-box-arrow-in-right" aria-hidden="true"></i> Ingresar al sistema</Link>
+                <Link to="/dashboard" className="btn btn-outline-light btn-lg"><i className="bi bi-bar-chart-line" aria-hidden="true"></i> Ver dashboard</Link>
               </div>
+              <p className="small mt-2 mb-0">
+                ¿Aún no tienes cuenta? <Link to="/registro" className="link-light fw-semibold">Crea tu cuenta verificada</Link>
+                {' · '}<a href="#estado" className="link-light">Consultar estado de una alerta</a>
+              </p>
               <ul className="list-unstyled d-flex flex-wrap gap-4 mt-4 mb-0 small">
                 <li><i className="bi bi-lightning-charge-fill" aria-hidden="true"></i> <strong>Rapidez:</strong> registro en &lt; 1 min</li>
                 <li><i className="bi bi-signpost-split-fill" aria-hidden="true"></i> <strong>Orientación:</strong> canal oficial correcto</li>
