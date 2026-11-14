@@ -21,14 +21,27 @@ const fecha = (d: Date | string) => new Date(d).toLocaleDateString('es-PE', { da
 const fechaHora = (d: string) => new Date(d).toLocaleString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: ZONA_LIMA });
 const nf = new Intl.NumberFormat('es-PE');
 
-/** Lee las alertas del último año en bloques de 1000 (límite por consulta de Supabase). */
+/** "2026-11-14" en la fecha local del navegador. */
+const aIso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+/** "2026-11-14" → Date al inicio (00:00) o al final (23:59:59) de ese día, en hora local. */
+const inicioDia = (iso: string) => new Date(`${iso}T00:00:00`);
+const finDia = (iso: string) => new Date(`${iso}T23:59:59.999`);
+/** Rango de los últimos `dias` días, terminando hoy. */
+function rangoPreset(dias: number) {
+  const hoy = new Date();
+  const desde = new Date(hoy);
+  desde.setDate(desde.getDate() - (dias - 1));
+  return { desde: aIso(desde), hasta: aIso(hoy) };
+}
+
+/** Lee las alertas en bloques de 1000 (límite por consulta de Supabase). */
 async function cargarAlertas(): Promise<Fila[]> {
-  const desde = new Date(Date.now() - 365 * DIA).toISOString();
+  // Se cargan todas (no solo el último año) para poder consultar cualquier rango de fechas.
   const todas: Fila[] = [];
   for (let desdeFila = 0; ; desdeFila += 1000) {
     const { data, error } = await supabase.from('alertas')
       .select('id, codigo, tipo_id, estado, recibida_en, finalizada_en, direccion')
-      .gte('recibida_en', desde).order('recibida_en', { ascending: false })
+      .order('recibida_en', { ascending: false })
       .range(desdeFila, desdeFila + 999);
     if (error) throw error;
     todas.push(...(data ?? []));
@@ -51,7 +64,25 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
   const [actualizado, setActualizado] = useState<Date | null>(null);
   const [filtroTipo, setFiltroTipo] = useState<string>('todos');
-  const [periodo, setPeriodo] = useState(90);
+  // Periodo: atajo (30, 90, 180, 365 días) o 'personalizado' cuando se eligen las fechas a mano.
+  const [periodo, setPeriodo] = useState<number | 'personalizado'>(90);
+  const [rango, setRango] = useState(() => rangoPreset(90));
+
+  function elegirPeriodo(valor: string) {
+    if (valor === 'personalizado') { setPeriodo('personalizado'); return; }
+    const dias = Number(valor);
+    setPeriodo(dias);
+    setRango(rangoPreset(dias));
+  }
+  function cambiarFecha(campo: 'desde' | 'hasta', valor: string) {
+    if (!valor) return;
+    setPeriodo('personalizado');
+    setRango((r) => ({ ...r, [campo]: valor }));
+  }
+  // Si se ingresan al revés (desde > hasta), se usan intercambiadas y se avisa.
+  const invertido = rango.desde > rango.hasta;
+  const desdeIso = invertido ? rango.hasta : rango.desde;
+  const hastaIso = invertido ? rango.desde : rango.hasta;
   const [pagina, setPagina] = useState(0);
 
   const recargar = useCallback(async () => {
@@ -84,15 +115,19 @@ export default function DashboardPage() {
     return () => { document.title = anterior; };
   }, []);
 
-  useEffect(() => { setPagina(0); }, [filtroTipo, periodo]);
+  useEffect(() => { setPagina(0); }, [filtroTipo, desdeIso, hastaIso]);
 
   const nombreTipo = useCallback((id: number) => tipos?.find((t) => t.id === id)?.nombre ?? `Tipo ${id}`, [tipos]);
 
   // ---------- Datos filtrados y agregados ----------
   const datos = useMemo(() => {
-    const desde = Date.now() - periodo * DIA;
-    const filtradas = (alertas ?? []).filter((a) =>
-      new Date(a.recibida_en).getTime() >= desde && (filtroTipo === 'todos' || String(a.tipo_id) === filtroTipo));
+    const desde = inicioDia(desdeIso).getTime();
+    const hasta = finDia(hastaIso).getTime();
+    const dias = Math.max(1, Math.round((hasta - desde) / DIA));
+    const filtradas = (alertas ?? []).filter((a) => {
+      const t = new Date(a.recibida_en).getTime();
+      return t >= desde && t <= hasta && (filtroTipo === 'todos' || String(a.tipo_id) === filtroTipo);
+    });
 
     const atendidas = filtradas.filter((a) => a.estado === 'finalizada');
     const pendientes = filtradas.filter((a) => PENDIENTES.includes(a.estado));
@@ -115,8 +150,8 @@ export default function DashboardPage() {
       .filter((z) => z.total > 0 || z.zona !== OTRAS)
       .sort((a, b) => b.total - a.total);
 
-    // Evolución: por día (30 días), por semana (≤ 6 meses) o por mes (12 meses)
-    const unidad: 'dia' | 'semana' | 'mes' = periodo <= 30 ? 'dia' : periodo <= 180 ? 'semana' : 'mes';
+    // Evolución según el largo del rango: por día (≤ 31 días), por semana (≤ ~6 meses) o por mes
+    const unidad: 'dia' | 'semana' | 'mes' = dias <= 31 ? 'dia' : dias <= 186 ? 'semana' : 'mes';
     const cubetas = new Map<string, number>();
     const etiquetas: string[] = [];
     const inicioDe = (d: Date) => {
@@ -128,7 +163,7 @@ export default function DashboardPage() {
     const etiquetaDe = (d: Date) => unidad === 'mes'
       ? d.toLocaleDateString('es-PE', { month: 'short', year: '2-digit' })
       : d.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' });
-    for (let d = inicioDe(new Date(desde)); d.getTime() <= Date.now();) {
+    for (let d = inicioDe(new Date(desde)); d.getTime() <= hasta;) {
       const k = etiquetaDe(d);
       etiquetas.push(k);
       cubetas.set(k, 0);
@@ -145,14 +180,16 @@ export default function DashboardPage() {
       filtradas, atendidas, pendientes, canceladas, promedio, porTipo, porZona, unidad,
       evolucion: { etiquetas, valores: etiquetas.map((k) => cubetas.get(k) ?? 0) },
       desde: new Date(desde),
+      hasta: new Date(hasta),
+      dias,
     };
-  }, [alertas, filtroTipo, periodo, tipos]);
+  }, [alertas, filtroTipo, desdeIso, hastaIso, tipos]);
 
   const totalPaginas = Math.max(1, Math.ceil(datos.filtradas.length / POR_PAGINA));
   const filasPagina = datos.filtradas.slice(pagina * POR_PAGINA, (pagina + 1) * POR_PAGINA);
   const pct = (n: number) => (datos.filtradas.length ? Math.round((n / datos.filtradas.length) * 100) : 0);
   const nombreFiltro = filtroTipo === 'todos' ? 'todos los tipos' : nombreTipo(Number(filtroTipo));
-  const clave = `${filtroTipo}|${periodo}|${actualizado?.getTime() ?? 0}|${tipos?.length ?? 0}`;
+  const clave = `${filtroTipo}|${desdeIso}|${hastaIso}|${actualizado?.getTime() ?? 0}|${tipos?.length ?? 0}`;
 
   async function salir() {
     await cerrarSesion();
@@ -258,7 +295,7 @@ export default function DashboardPage() {
             <span className="eyebrow">Monitoreo</span>
             <h1 className="h2 fw-bold section-title mb-1">Panel de monitoreo de alertas</h1>
             <p className="mb-0">
-              Del {fecha(datos.desde)} al {fecha(new Date())} · {nombreFiltro} · {nf.format(datos.filtradas.length)} alertas
+              Del {fecha(datos.desde)} al {fecha(datos.hasta)} · {nombreFiltro} · {nf.format(datos.filtradas.length)} alertas
             </p>
           </div>
           <span className="badge badge-fuente px-3 py-2">
@@ -273,30 +310,43 @@ export default function DashboardPage() {
         <section className="filtros-bar p-3 mb-4" aria-labelledby="tFiltros">
           <h2 id="tFiltros" className="visually-hidden">Filtros</h2>
           <div className="row g-3 align-items-end">
-            <div className="col-md-4">
+            <div className="col-md-6 col-xl-3">
               <label htmlFor="filtroTipo" className="form-label fw-semibold mb-1"><i className="bi bi-funnel" aria-hidden="true"></i> Tipo de emergencia</label>
               <select id="filtroTipo" className="form-select" value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)}>
                 <option value="todos">Todos los tipos</option>
                 {(tipos ?? []).map((t) => <option key={t.id} value={t.id}>{t.nombre}</option>)}
               </select>
             </div>
-            <div className="col-md-4">
+            <div className="col-md-6 col-xl-3">
               <label htmlFor="filtroPeriodo" className="form-label fw-semibold mb-1"><i className="bi bi-calendar3" aria-hidden="true"></i> Periodo</label>
-              <select id="filtroPeriodo" className="form-select" value={periodo} onChange={(e) => setPeriodo(Number(e.target.value))}>
+              <select id="filtroPeriodo" className="form-select" value={periodo} onChange={(e) => elegirPeriodo(e.target.value)}>
                 <option value={30}>Últimos 30 días</option>
                 <option value={90}>Últimos 3 meses</option>
                 <option value={180}>Últimos 6 meses</option>
                 <option value={365}>Últimos 12 meses</option>
+                <option value="personalizado">Personalizado (elige las fechas)</option>
               </select>
             </div>
-            <div className="col-md-4 d-flex gap-2">
-              <button type="button" className="btn btn-ac-outline w-100" onClick={() => { setFiltroTipo('todos'); setPeriodo(90); }}>
-                <i className="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Restablecer filtros
+            <div className="col-6 col-md-4 col-xl-2">
+              <label htmlFor="filtroDesde" className="form-label fw-semibold mb-1">Desde</label>
+              <input id="filtroDesde" type="date" className="form-control" value={rango.desde} max={aIso(new Date())}
+                onChange={(e) => cambiarFecha('desde', e.target.value)} />
+            </div>
+            <div className="col-6 col-md-4 col-xl-2">
+              <label htmlFor="filtroHasta" className="form-label fw-semibold mb-1">Hasta</label>
+              <input id="filtroHasta" type="date" className="form-control" value={rango.hasta} max={aIso(new Date())}
+                onChange={(e) => cambiarFecha('hasta', e.target.value)} />
+            </div>
+            <div className="col-md-4 col-xl-2 d-flex gap-2">
+              <button type="button" className="btn btn-ac-outline w-100" onClick={() => { setFiltroTipo('todos'); elegirPeriodo('90'); }}>
+                <i className="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Restablecer
               </button>
             </div>
           </div>
           <p className="small text-muted-ac mb-0 mt-2" aria-live="polite">
-            {error || (alertas ? `Mostrando ${nf.format(datos.filtradas.length)} alertas de ${nombreFiltro}.` : 'Cargando datos…')}
+            {error || (!alertas ? 'Cargando datos…'
+              : `${invertido ? 'La fecha "Desde" era posterior a "Hasta": se intercambiaron. ' : ''}`
+                + `Mostrando ${nf.format(datos.filtradas.length)} alertas de ${nombreFiltro} del ${fecha(datos.desde)} al ${fecha(datos.hasta)}.`)}
           </p>
         </section>
 
@@ -305,7 +355,7 @@ export default function DashboardPage() {
           <h2 id="tKpi" className="visually-hidden">Indicadores clave</h2>
           <div className="row g-3">
             <Kpi clase="" icono="bi-inbox-fill" titulo="Alertas registradas" valor={nf.format(datos.filtradas.length)} unidad="alertas"
-              sub={`Promedio de ${(datos.filtradas.length / periodo).toFixed(1)} por día`} />
+              sub={`Promedio de ${(datos.filtradas.length / datos.dias).toFixed(1)} por día`} />
             <Kpi clase="kpi-ok" icono="bi-check-circle-fill" titulo="Alertas atendidas" valor={nf.format(datos.atendidas.length)} unidad="alertas"
               sub={`${pct(datos.atendidas.length)} % del total${datos.canceladas ? ` · ${datos.canceladas} canceladas` : ''}`} />
             <Kpi clase="kpi-warn" icono="bi-hourglass-split" titulo="Alertas pendientes" valor={nf.format(datos.pendientes.length)} unidad="alertas"

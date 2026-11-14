@@ -27,8 +27,8 @@ Rutas: públicas (/, /ingresar, /recuperar, /registro), ciudadano (/app/...), ce
 
 ## Plan
 1. Proyecto base ✅  2. Landing en React ✅  3. Login + registro verificado (RF-16) + Edge Functions ✅
-4. Flujo SOS + estado en tiempo real ✅  5. Evidencias, historial, notificaciones, perfil, voz, sin conexión
-6. Panel central 105 ✅  7. Despliegue en Vercel
+4. Flujo SOS + estado en tiempo real ✅  5. Evidencias, historial, notificaciones, perfil, voz, sin conexión ✅
+6. Panel central 105 ✅  7. Despliegue en Vercel ✅
 
 ## Reglas
 - Responde en español. Trabaja un paso a la vez y muéstrame cómo probarlo antes de seguir.
