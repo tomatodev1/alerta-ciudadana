@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useContador } from '../hooks';
 import { INDICADORES } from '../datos';
 
@@ -50,7 +51,9 @@ export function Hero() {
             <Indicador icono="bi-stopwatch" valor={INDICADORES.tiempo} texto="minutos de respuesta promedio"
               estilo={{ background: '#ece4fd', color: '#6d28d9' }} />
           </div>
-          <p className="small text-muted-ac text-end mt-2 mb-0">Datos de ejemplo del prototipo.</p>
+          <p className="small text-muted-ac text-end mt-2 mb-0">
+            Datos de ejemplo del prototipo · <Link to="/dashboard">Ver Dashboard →</Link>
+          </p>
         </div>
       </div>
     </>

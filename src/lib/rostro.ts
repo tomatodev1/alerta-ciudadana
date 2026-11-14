@@ -69,6 +69,47 @@ export async function descriptor(el: Entrada, tamano = 416): Promise<Float32Arra
   return r.reduce((a, b) => (b.detection.box.area > a.detection.box.area ? b : a)).descriptor;
 }
 
+/**
+ * Descriptor más confiable para fotos donde el rostro sale pequeño (p. ej. la foto del DNI):
+ * 1) busca la cara probando varios tamaños de entrada y un umbral bajo,
+ * 2) la recorta con margen y la amplía a ~400 px,
+ * 3) calcula el descriptor sobre ese recorte (los puntos faciales salen mucho más precisos).
+ */
+export async function descriptorRobusto(el: HTMLCanvasElement | HTMLImageElement): Promise<Float32Array | null> {
+  const faceapi = await cargarModelos();
+  const { w, h } = dimensiones(el);
+
+  let caja: { x: number; y: number; width: number; height: number } | null = null;
+  for (const tam of [608, 416, 320]) {
+    const det = await faceapi.detectAllFaces(el, new faceapi.TinyFaceDetectorOptions({ inputSize: tam, scoreThreshold: 0.3 }));
+    if (det.length) {
+      const b = det.reduce((a, c) => (c.box.area > a.box.area ? c : a)).box;
+      caja = { x: b.x, y: b.y, width: b.width, height: b.height };
+      break;
+    }
+  }
+  if (!caja) return null;
+
+  const margen = 0.6;
+  const sx = Math.max(0, caja.x - caja.width * margen);
+  const sy = Math.max(0, caja.y - caja.height * margen);
+  const sw = Math.min(w - sx, caja.width * (1 + 2 * margen));
+  const sh = Math.min(h - sy, caja.height * (1 + 2 * margen));
+  const escala = 400 / sw;
+  const recorte = document.createElement('canvas');
+  recorte.width = Math.round(sw * escala);
+  recorte.height = Math.round(sh * escala);
+  const ctx = recorte.getContext('2d')!;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(el, sx, sy, sw, sh, 0, 0, recorte.width, recorte.height);
+
+  const r = await faceapi
+    .detectSingleFace(recorte, new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.3 }))
+    .withFaceLandmarks()
+    .withFaceDescriptor();
+  return r?.descriptor ?? descriptor(el, 608);
+}
+
 export function distancia(a: Float32Array, b: Float32Array) {
   let s = 0;
   for (let i = 0; i < a.length; i++) s += (a[i] - b[i]) ** 2;
@@ -90,10 +131,10 @@ export function giroCabeza(p: Punto[]) {
   return (nariz - izq) / (der - izq);
 }
 
-/** Toma un cuadro del video (o redimensiona una imagen) y lo devuelve como JPEG ≤ 1280 px. */
-export function aJpeg(el: HTMLVideoElement | HTMLImageElement, espejo = false): Promise<{ blob: Blob; canvas: HTMLCanvasElement }> {
+/** Toma un cuadro del video (o redimensiona una imagen) y lo devuelve como JPEG de lado máximo `maximo` px. */
+export function aJpeg(el: HTMLVideoElement | HTMLImageElement, espejo = false, maximo = 1280): Promise<{ blob: Blob; canvas: HTMLCanvasElement }> {
   const { w, h } = dimensiones(el);
-  const escala = Math.min(1, 1280 / Math.max(w, h));
+  const escala = Math.min(1, maximo / Math.max(w, h));
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(w * escala);
   canvas.height = Math.round(h * escala);

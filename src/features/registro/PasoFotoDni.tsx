@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { supabase } from '@/lib/supabase';
-import { aJpeg, cargarModelos, descriptor, leerRostro } from '@/lib/rostro';
+import { aJpeg, cargarModelos, descriptorRobusto, leerRostro } from '@/lib/rostro';
 import { useCamara } from './useCamara';
 
 export interface FotoDni { ruta: string; descriptor: Float32Array }
@@ -29,8 +29,9 @@ export function PasoFotoDni({ usuarioId, onListo }: { usuarioId: string; onListo
     setFase('procesando');
     setError('');
     try {
-      const { blob, canvas } = await aJpeg(fuente);
-      const d = await descriptor(canvas, 608);
+      // Se guarda en mayor resolución (1920 px): el rostro del DNI es pequeño.
+      const { blob, canvas } = await aJpeg(fuente, false, 1920);
+      const d = await descriptorRobusto(canvas);
       if (!d) {
         setError('No encontramos el rostro en la foto del DNI. Acerca el documento, evita reflejos y vuelve a intentarlo.');
         setFase('camara');
@@ -98,7 +99,7 @@ export function PasoFotoDni({ usuarioId, onListo }: { usuarioId: string; onListo
     <>
       <p className="lbl solo-escritorio">PASO 3 DE 4</p>
       <h1>Toma una foto del anverso de tu DNI</h1>
-      <p className="muted">Ubica el documento dentro del marco. La foto se toma sola cuando se lee bien.</p>
+      <p className="muted">Acerca el DNI hasta que llene el marco. La foto se toma sola cuando se lee bien. También puedes subir una foto o escaneo.</p>
 
       <div className="camara">
         {fase === 'revisar' && vista ? (

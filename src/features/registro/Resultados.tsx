@@ -49,7 +49,7 @@ export function Rechazo({ perfil, resultado, onReintentar, onRevision }: {
 }) {
   const [pidiendo, setPidiendo] = useState(false);
   const [error, setError] = useState('');
-  const restantes = resultado?.intentos_restantes ?? Math.max(0, 3 - perfil.intentos_verificacion);
+  const restantes = resultado?.intentos_restantes ?? Math.max(0, 5 - perfil.intentos_verificacion);
   const c = resultado?.checks;
 
   const motivo = !c || !c.rostro

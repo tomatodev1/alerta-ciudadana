@@ -9,8 +9,10 @@
 // informa el cliente. En producción la comparación debe hacerse en el servidor (p. ej. RENIEC).
 import { clienteAdmin, ErrorUsuario, json, PADRON_DEMO, servir, usuarioDeLaPeticion } from '../_shared/comun.ts';
 
-const UMBRAL = 0.5;        // distancia euclidiana < 0.50 = mismo rostro
-const MAX_INTENTOS = 3;
+// Distancia euclidiana entre descriptores de face-api.js. 0.6 es el valor de referencia de la
+// librería; se usa 0.62 (algo tolerante) porque la foto del DNI suele salir pequeña o con reflejos.
+const UMBRAL = 0.62;
+const MAX_INTENTOS = 5;
 const BUCKET = 'verificacion';
 
 const normalizar = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/\s+/g, ' ').trim();

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard de monitoreo de alertas – AlertaCiudadana (Prototipo académico)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="css/styles.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Oculta la página hasta verificar la sesión
+    document.documentElement.style.visibility = 'hidden';
+    window.SESION = sesionActiva().then(s => {
+      if (!s) { location.replace('login.html'); return null; }
+      document.documentElement.style.visibility = '';
+      return s;
+    });
+  </script>
+</head>
+<body>
+  <a href="#contenido" class="skip-link">Saltar al contenido principal</a>
+
+  <div class="aviso-prototipo py-2" role="note">
+    <div class="container d-flex align-items-center gap-2">
+      <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+      <span><strong>Prototipo académico.</strong> No sustituye los canales oficiales de emergencia (105 · 116 · 106).</span>
+    </div>
+  </div>
+
+  <nav class="navbar navbar-expand navbar-dark navbar-ac sticky-top" aria-label="Navegación principal">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="index.html">
+        <span class="brand-logo" aria-hidden="true"><i class="bi bi-broadcast"></i></span>
+        <span class="d-none d-sm-inline">AlertaCiudadana</span>
+      </a>
+      <ul class="navbar-nav ms-auto gap-2">
+        <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door" aria-hidden="true"></i> Inicio</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#alerta"><i class="bi bi-megaphone" aria-hidden="true"></i> Registrar alerta</a></li>
+        <li class="nav-item"><a class="nav-link active" aria-current="page" href="dashboard.html"><i class="bi bi-bar-chart-line" aria-hidden="true"></i> Dashboard</a></li>
+        <li class="nav-item d-flex align-items-center ms-lg-2">
+          <span class="text-white small me-2 d-none d-md-inline"><i class="bi bi-person-circle" aria-hidden="true"></i> <span id="nombreUsuario"></span></span>
+          <button type="button" class="btn btn-light btn-sm fw-semibold" onclick="cerrarSesion()"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> Cerrar sesión</button>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="dash-header">
+    <div class="container d-flex flex-wrap justify-content-between align-items-end gap-2">
+      <div>
+        <span class="eyebrow">Monitoreo</span>
+        <h1 class="h2 fw-bold section-title mb-1">Panel de monitoreo de alertas</h1>
+        <p class="mb-0" id="textoPeriodo">—</p>
+      </div>
+      <span class="badge badge-fuente px-3 py-2"><i class="bi bi-database" aria-hidden="true"></i> <span id="fuenteDatos">Fuente: base de datos AlertaCiudadana</span></span>
+    </div>
+  </header>
+
+  <main id="contenido" class="container pb-4 dash-sube">
+
+    <!-- Filtros -->
+    <section class="filtros-bar p-3 mb-4" aria-labelledby="tFiltros">
+      <h2 id="tFiltros" class="visually-hidden">Filtros</h2>
+      <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+          <label for="filtroTipo" class="form-label fw-semibold mb-1"><i class="bi bi-funnel" aria-hidden="true"></i> Tipo de emergencia</label>
+          <select id="filtroTipo" class="form-select"><option value="todos">Todos los tipos</option></select>
+        </div>
+        <div class="col-md-4">
+          <label for="filtroPeriodo" class="form-label fw-semibold mb-1"><i class="bi bi-calendar3" aria-hidden="true"></i> Periodo</label>
+          <select id="filtroPeriodo" class="form-select">
+            <option value="30">Últimos 30 días</option>
+            <option value="90" selected>Últimos 3 meses</option>
+            <option value="180">Últimos 6 meses</option>
+            <option value="365">Últimos 12 meses</option>
+          </select>
+        </div>
+        <div class="col-md-4 d-flex gap-2">
+          <button id="btnRestablecer" class="btn btn-ac-outline w-100"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Restablecer filtros</button>
+        </div>
+      </div>
+      <p id="estadoFiltros" class="small text-muted-ac mb-0 mt-2" aria-live="polite"></p>
+    </section>
+
+    <!-- KPI -->
+    <section aria-labelledby="tKpi" class="mb-4">
+      <h2 id="tKpi" class="visually-hidden">Indicadores clave</h2>
+      <div class="row g-3">
+        <div class="col-sm-6 col-xl-3">
+          <div class="card card-ac kpi-card p-3 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-2"><div class="small fw-semibold text-muted-ac">Alertas registradas</div><span class="kpi-icono" aria-hidden="true"><i class="bi bi-inbox-fill"></i></span></div>
+            <div><span class="kpi-valor" id="kpiRegistradas">0</span> <span class="kpi-unidad">alertas</span></div>
+            <div class="small text-muted-ac" id="kpiRegistradasSub">—</div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+          <div class="card card-ac kpi-card kpi-ok p-3 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-2"><div class="small fw-semibold text-muted-ac">Alertas atendidas</div><span class="kpi-icono" aria-hidden="true"><i class="bi bi-check-circle-fill"></i></span></div>
+            <div><span class="kpi-valor" id="kpiAtendidas">0</span> <span class="kpi-unidad">alertas</span></div>
+            <div class="small text-muted-ac" id="kpiAtendidasSub">—</div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+          <div class="card card-ac kpi-card kpi-warn p-3 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-2"><div class="small fw-semibold text-muted-ac">Alertas pendientes</div><span class="kpi-icono" aria-hidden="true"><i class="bi bi-hourglass-split"></i></span></div>
+            <div><span class="kpi-valor" id="kpiPendientes">0</span> <span class="kpi-unidad">alertas</span></div>
+            <div class="small text-muted-ac" id="kpiPendientesSub">—</div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+          <div class="card card-ac kpi-card kpi-time p-3 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-2"><div class="small fw-semibold text-muted-ac">Tiempo promedio de respuesta</div><span class="kpi-icono" aria-hidden="true"><i class="bi bi-stopwatch-fill"></i></span></div>
+            <div><span class="kpi-valor" id="kpiTiempo">0</span> <span class="kpi-unidad">minutos</span></div>
+            <div class="small text-muted-ac">Desde el registro hasta el cierre (solo atendidas)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Gráficos -->
+    <section aria-labelledby="tGraficos">
+      <h2 id="tGraficos" class="visually-hidden">Gráficos</h2>
+      <div class="row g-3">
+        <div class="col-lg-6">
+          <div class="card card-ac p-3 h-100">
+            <h3 class="h6 fw-bold mb-0">Alertas por tipo de emergencia</h3>
+            <p class="small text-muted-ac mb-2">Número de alertas (atendidas y pendientes). Clic en una barra para filtrar por ese tipo.</p>
+            <div class="chart-box"><canvas id="chartTipo" role="img"></canvas></div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card card-ac p-3 h-100">
+            <h3 class="h6 fw-bold mb-0">Alertas por zona geográfica</h3>
+            <p class="small text-muted-ac mb-2">Número de alertas por zona de Lima Metropolitana y Callao.</p>
+            <div class="chart-box"><canvas id="chartZona" role="img"></canvas></div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="card card-ac p-3">
+            <h3 class="h6 fw-bold mb-0">Evolución temporal de alertas</h3>
+            <p class="small text-muted-ac mb-2" id="textoEvolucion">—</p>
+            <div class="chart-box"><canvas id="chartEvolucion" role="img"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Detalle de alertas -->
+    <section aria-labelledby="tTabla" class="mt-3">
+      <div class="card card-ac p-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+          <div>
+            <h2 id="tTabla" class="h6 fw-bold mb-0">Detalle de alertas</h2>
+            <p class="small text-muted-ac mb-0">Registros según los filtros aplicados (más recientes primero).</p>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover table-sm align-middle mb-2">
+            <thead class="table-light"><tr><th scope="col">Código</th><th scope="col">Fecha</th><th scope="col">Tipo</th><th scope="col">Zona</th><th scope="col">Estado</th><th scope="col" class="text-end">Tiempo de respuesta (min)</th></tr></thead>
+            <tbody id="tablaAlertas"></tbody>
+          </table>
+        </div>
+        <nav class="d-flex justify-content-between align-items-center" aria-label="Paginación de la tabla">
+          <span class="small text-muted-ac" id="infoPagina" aria-live="polite"></span>
+          <div class="btn-group">
+            <button class="btn btn-sm btn-ac-outline" id="pagAnterior"><i class="bi bi-chevron-left" aria-hidden="true"></i> Anterior</button>
+            <button class="btn btn-sm btn-ac-outline" id="pagSiguiente">Siguiente <i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+          </div>
+        </nav>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="py-4 mt-4">
+    <div class="container d-flex flex-column flex-md-row justify-content-between gap-2 small">
+      <span>© 2026 AlertaCiudadana · Prototipo académico – Grupo 6. No sustituye los canales oficiales de emergencia.</span>
+      <a href="index.html">← Volver a la Landing Page</a>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script>SESION.then(s => { if (s) document.getElementById('nombreUsuario').textContent = s.nombre; });</script>
+</body>
+</html>

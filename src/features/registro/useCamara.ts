@@ -18,7 +18,10 @@ export function useCamara(modo: 'user' | 'environment', activa = true) {
       try {
         if (!navigator.mediaDevices?.getUserMedia) throw new DOMException('', 'NotSupportedError');
         stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: modo, width: { ideal: 1280 }, height: { ideal: 960 } },
+          // Cámara trasera (DNI) en más resolución para que se lea bien el rostro del documento.
+          video: modo === 'environment'
+            ? { facingMode: modo, width: { ideal: 1920 }, height: { ideal: 1440 } }
+            : { facingMode: modo, width: { ideal: 1280 }, height: { ideal: 960 } },
           audio: false,
         });
         if (cancelado) { stream.getTracks().forEach((t) => t.stop()); return; }

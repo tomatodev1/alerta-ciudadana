@@ -9,6 +9,7 @@ export function Footer() {
         <span className="d-flex flex-wrap gap-3">
           <Link to="/ingresar">Ingresar al sistema →</Link>
           <Link to="/registro">Crear cuenta</Link>
+          <Link to="/dashboard">Ir al Dashboard de monitoreo →</Link>
         </span>
       </div>
     </footer>

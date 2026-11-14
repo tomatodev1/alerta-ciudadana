@@ -227,3 +227,33 @@ section { scroll-margin-top: 80px; }
   html { scroll-behavior: auto !important; }
   .reveal { opacity: 1; transform: none; }
 }
+
+/* =========================================================
+   Dashboard de monitoreo (estilos del dashboard original)
+   ========================================================= */
+.dash-header {
+  background: linear-gradient(135deg, var(--ac-primary) 0%, #1e66b0 100%); color: #fff;
+  border-radius: 0 0 28px 28px; padding: 2rem 0 5rem;
+}
+.dash-header .section-title { color: #fff; }
+.dash-header p { color: #dbe7f7 !important; }
+.dash-header .eyebrow { background: rgba(255,255,255,.14); color: #fff; }
+.dash-sube { margin-top: -3.5rem; position: relative; }
+.filtros-bar { background: #fff; border-radius: var(--ac-radius); box-shadow: 0 2px 10px rgba(11,58,110,.08); }
+.badge-fuente { background: #fff4d6; color: #5c4400; border: 1px solid #e0a800; white-space: normal; text-align: left; font-weight: 600; }
+.kpi-card { border-bottom: 4px solid var(--ac-primary); }
+.kpi-card.kpi-ok { border-bottom-color: #059669; }
+.kpi-card.kpi-warn { border-bottom-color: #d97706; }
+.kpi-card.kpi-time { border-bottom-color: #7c3aed; }
+.kpi-ok .kpi-icono { background: #d9f4ea; color: #047857; }
+.kpi-warn .kpi-icono { background: #fdefd9; color: #b45309; }
+.kpi-time .kpi-icono { background: #ece4fd; color: #6d28d9; }
+.kpi-valor { font-size: 2.1rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.kpi-unidad { font-size: .95rem; font-weight: 600; color: var(--ac-muted); }
+.chart-box { position: relative; height: 300px; }
+.dashboard .form-select { min-height: 48px; }
+.dashboard .nav-link { min-height: 48px; }
+@media (max-width: 575.98px) {
+  .dash-header { padding: 1.5rem 0 4.5rem; }
+  .chart-box { height: 260px; }
+}

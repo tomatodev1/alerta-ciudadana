@@ -23,6 +23,7 @@ export function CentralLayout() {
         </Link>
         <nav className="topnav" aria-label="Secciones de la central">
           <NavLink to="/central" end className={({ isActive }) => (isActive ? 'on' : '')}>Bandeja</NavLink>
+          <NavLink to="/dashboard">Dashboard</NavLink>
         </nav>
         <div className="topbar-right">
           <span className="cuenta">

@@ -78,6 +78,24 @@ Los modelos de face-api.js están en `public/modelos` (~7 MB) y solo se descarga
 Las alertas pasan a "Recibida" solas cuando aparecen en la bandeja de un operador conectado.
 Si nadie las recibe en 2 minutos, el ciudadano ve un aviso para llamar al 105.
 
+## Dashboard de monitoreo (`/dashboard`)
+Panel para gestores MININTER con KPI, gráficos por tipo, zona y evolución, y detalle de alertas
+(datos reales de la tabla `alertas`, en tiempo real). Se abre desde la landing (botón **Dashboard**).
+
+**Credenciales predefinidas** (gestor, rol `admin`):
+
+| Correo | Contraseña |
+|---|---|
+| `gestor@alertaciudadana.pe` | `Gestor2026!` |
+
+Configuración (una sola vez), en `supabase/datos-demo/`:
+1. Crea el usuario en *Authentication → Users → Add user* (con esa contraseña y **Auto Confirm User**)
+   y ejecuta `03_cuenta_gestor_dashboard.sql`.
+2. Carga los datos de demostración: `01_alertas_dashboard.sql` (12 ciudadanos demo y 240 alertas
+   de los últimos 12 meses con su historial). Para borrarlos: `02_limpiar_datos_demo.sql`.
+
+Los operadores de la Central 105 también pueden abrir el dashboard.
+
 ## Despliegue en Vercel
 1. Sube el repositorio a GitHub.
 2. En Vercel: *Add New → Project* e importa el repositorio (Vite se detecta solo).

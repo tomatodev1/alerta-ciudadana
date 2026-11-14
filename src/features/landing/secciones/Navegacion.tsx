@@ -67,6 +67,11 @@ export function Navegacion() {
                 </li>
               ))}
               <li className="nav-item ms-lg-2 mt-2 mt-lg-0">
+                <Link className="btn btn-outline-light btn-sm fw-semibold" to="/dashboard">
+                  <i className="bi bi-bar-chart-line" aria-hidden="true"></i> Dashboard
+                </Link>
+              </li>
+              <li className="nav-item mt-2 mt-lg-0">
                 <Link className="btn btn-light btn-sm fw-semibold" to="/ingresar">
                   <i className="bi bi-box-arrow-in-right" aria-hidden="true"></i> Ingresar al sistema
                 </Link>

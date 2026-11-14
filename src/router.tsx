@@ -44,17 +44,21 @@ export const router = createBrowserRouter([
     }],
   },
 
-  // Central 105 (rol operador)
+  // Central 105 (operador) y Dashboard de monitoreo (gestor MININTER = admin)
   {
     element: <ProtectedRoute roles={['operador', 'admin']} />,
-    children: [{
-      path: '/central',
-      element: <CentralLayout />,
-      children: [
-        { index: true, element: <BandejaPage /> },
-        { path: 'alertas/:id', element: <DetalleAlertaCentralPage /> },
-      ],
-    }],
+    children: [
+      {
+        path: '/central',
+        element: <CentralLayout />,
+        children: [
+          { index: true, element: <BandejaPage /> },
+          { path: 'alertas/:id', element: <DetalleAlertaCentralPage /> },
+        ],
+      },
+      // Se carga aparte (Bootstrap + Chart.js no entran en el bundle del sistema).
+      { path: '/dashboard', lazy: async () => ({ Component: (await import('@/features/dashboard/DashboardPage')).default }) },
+    ],
   },
 
   { path: '*', element: <NoEncontradaPage /> },
